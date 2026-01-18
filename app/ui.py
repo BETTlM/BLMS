@@ -9,6 +9,7 @@ if __package__ in (None, ""):
 
 import pandas as pd
 import streamlit as st
+import streamlit.components.v1 as components
 
 from app import db
 from app.ml import build_features_matrix, explain_instance, load_model
@@ -562,6 +563,45 @@ def page_about():
         st.markdown(doc_path.read_text(encoding="utf-8"))
     else:
         st.info("Explanation file not found: docs/PROJECT_EXPLANATION.md")
+
+    st.divider()
+    st.subheader("ER Diagram")
+    st.caption("Shown below as an offline SVG (works without internet). UML/PlantUML source is also included in the project files.")
+
+    svg_path = Path(__file__).resolve().parents[1] / "docs" / "ER_DIAGRAM.svg"
+    puml_path = Path(__file__).resolve().parents[1] / "docs" / "ER_DIAGRAM.puml"
+
+    if svg_path.exists():
+        raw = svg_path.read_bytes()
+        try:
+            svg = raw.decode("utf-8")
+        except UnicodeDecodeError:
+            # Fallback for accidentally saved Windows-1252 / smart quotes, etc.
+            svg = raw.decode("cp1252", errors="replace")
+        # Make sure the SVG is visible regardless of Streamlit theme:
+        # - give it a white background
+        # - force a dark foreground color for currentColor strokes/text
+        wrapped = f"""
+<div style="
+  background: #ffffff;
+  color: #0f172a;
+  border-radius: 14px;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  padding: 12px;
+  overflow: auto;
+">
+  {svg}
+</div>
+"""
+        components.html(wrapped, height=780, scrolling=True)
+    else:
+        st.warning("ER diagram SVG not found: docs/ER_DIAGRAM.svg")
+
+    with st.expander("UML (PlantUML) source", expanded=False):
+        if puml_path.exists():
+            st.code(puml_path.read_text(encoding="utf-8"), language="text")
+        else:
+            st.info("PlantUML file not found: docs/ER_DIAGRAM.puml")
 
 
 def main():
