@@ -553,6 +553,17 @@ def page_export(conn):
     )
 
 
+def page_about():
+    st.title("About this project")
+    st.caption("A DBMS + AI mini project: Bank Loan Management with Default Risk Analysis.")
+
+    doc_path = Path(__file__).resolve().parents[1] / "docs" / "PROJECT_EXPLANATION.md"
+    if doc_path.exists():
+        st.markdown(doc_path.read_text(encoding="utf-8"))
+    else:
+        st.info("Explanation file not found: docs/PROJECT_EXPLANATION.md")
+
+
 def main():
     conn = _conn()
     _sidebar_admin(conn)
@@ -561,7 +572,7 @@ def main():
     st.sidebar.subheader("Navigation")
     page = st.sidebar.radio(
         "Go to",
-        options=["Dashboard", "New application", "Browse DB", "SQL (viva)", "Export"],
+        options=["Dashboard", "New application", "Browse DB", "SQL (viva)", "Export", "About project"],
         label_visibility="collapsed",
     )
 
@@ -575,6 +586,8 @@ def main():
         page_sql(conn)
     elif page == "Export":
         page_export(conn)
+    elif page == "About project":
+        page_about()
 
 
 if __name__ == "__main__":
